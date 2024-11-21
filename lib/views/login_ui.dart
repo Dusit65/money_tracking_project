@@ -1,6 +1,9 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:money_tracking_project/models/user.dart';
+import 'package:money_tracking_project/services/call_api.dart';
+import 'package:money_tracking_project/views/home_ui.dart';
 
 class LoginUI extends StatefulWidget {
   const LoginUI({super.key});
@@ -15,6 +18,39 @@ class _LoginUIState extends State<LoginUI> {
   TextEditingController userPasswordCtrl = TextEditingController(text: '');
   //hide pass variable
   bool passStatus = true;
+
+  //=======================Method show warning dialog=======================
+  showWaringDialog(context, msg) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Align(
+          alignment: Alignment.center,
+          child: Text(
+            'คำเตือน',
+          ),
+        ),
+        content: Text(
+          msg,
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'ตกลง',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,34 +208,40 @@ class _LoginUIState extends State<LoginUI> {
                           ),
                           child: ElevatedButton(
                             onPressed: () {
+                              Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HomeUI(),
+                          ),
+                        );
                               
-                              // //Validate
-                              // if (usernameCtrl.text.trim().length == 0) {
-                              //   showWaringDialog(context, 'ป้อนชื่อผู้ใช้ด้วย');
-                              // } else if (passwordCtrl.text.trim().length == 0) {
-                              //   showWaringDialog(context, 'ป้อนรหัสผ่านด้วย');
-                              // } else {
-                              //   //validate username and password from DB through API
-                              //   //Create a variable to store data to be sent with the API
-                              //   User user = User(
-                              //     username: usernameCtrl.text.trim(),
-                              //     password: passwordCtrl.text.trim(),
-                              //   );
-                              //   //call API
-                              //   CallAPI.callcheckUserPasswordAPI(user).then((value) {
-                              //     if (value.message == '1') {
-                              //       Navigator.pushReplacement(
-                              //         context,
-                              //         MaterialPageRoute(
-                              //           builder: (context) => HomeUI(user: value,),
-                              //         ),
-                              //       );
-                              //     } else {
-                              //       showWaringDialog(
-                              //           context, "ชื่อผู้ใช้รหัสผ่านไม่ถูกต้อง");
-                              //     }
-                              //   });
-                              // }
+                              //Validate
+                              if (userNameCtrl.text.trim().length == 0) {
+                                showWaringDialog(context, 'ป้อนชื่อผู้ใช้ด้วย');
+                              } else if (userPasswordCtrl.text.trim().length == 0) {
+                                showWaringDialog(context, 'ป้อนรหัสผ่านด้วย');
+                              } else {
+                                //validate username and password from DB through API
+                                //Create a variable to store data to be sent with the API
+                                User user = User(
+                                  userName: userNameCtrl.text.trim(),
+                                  userPassword: userPasswordCtrl.text.trim(),
+                                );
+                                //call API
+                                CallAPI.callcheckPassAPI(user).then((value) {
+                                  if (value.message == '1') {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => HomeUI(user: value,),
+                                      ),
+                                    );
+                                  } else {
+                                    showWaringDialog(
+                                        context, "ชื่อผู้ใช้รหัสผ่านไม่ถูกต้อง");
+                                  }
+                                });
+                              }
                             },
                             child: Text(
                               'เข้าใช้งาน',

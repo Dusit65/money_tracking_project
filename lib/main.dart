@@ -22,7 +22,7 @@ class _flutterChartGraphMapState extends State<flutterChartGraphMap> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomeUI(),
+      home: SplashScreenUI(),
       theme: ThemeData(
         textTheme: GoogleFonts.kanitTextTheme(
           Theme.of(context).textTheme
