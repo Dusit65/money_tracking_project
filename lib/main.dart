@@ -1,8 +1,10 @@
-// ignore_for_file: camel_case_types, prefer_const_constructors
+ // ignore_for_file: camel_case_types, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:money_tracking_project/views/home_ui.dart';
+// ignore: unused_import
+import 'package:money_tracking_project/views/splash_screen_ui.dart';
 
 void main() {
   runApp(const flutterChartGraphMap());
