@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_final_fields, unused_field
+// ignore_for_file: prefer_const_constructors, prefer_final_fields, unused_field, unused_import
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,8 +11,8 @@ import 'package:money_tracking_project/views/subviews/outcome_view.dart';
 
 class HomeUI extends StatefulWidget {
   User? user;
-  Money? money;
-   HomeUI({super.key, this.user, this.money});
+  // Money? money;
+    HomeUI({super.key, this.user});
 
   @override
   State<HomeUI> createState() => _HomeUIState();
@@ -21,28 +21,29 @@ class HomeUI extends StatefulWidget {
 class _HomeUIState extends State<HomeUI> {
   int _selectedIndex = 1;
   //Vareiables View to work with bottomNavigationBar
-  List<Widget> _showView = [
-    IncomeView(),
-    MainView(),
-    OutcomeView(),
-  ];
+  List<Widget> get _showView => [
+      IncomeView(user: widget.user), // ส่ง User ไปยัง IncomeView
+      MainView(user: widget.user),  // ส่ง User ไปยัง MainView
+      OutcomeView(user: widget.user), // ส่ง User ไปยัง OutcomeView
+];
+  //ตัวแปรเก็บข้อมูลการกินที่ได้ขากการเรียกใช้API
   //ตัวแปรเก็บข้อมูลการกินที่ได้ขากการเรียกใช้API
   Future<List<Money>>? moneyData;
 
   //สร้างฟังก์ชันเรียกใช้API
-  getAllMoneyByuserId(Money money) {
-    setState(() {
-      moneyData = CallAPI.callgetAllMoneyByuserId(money);
-    });
-  }
+  // getAllMoneyByuserId(Money money) {
+  //   setState(() {
+  //     moneyData = CallAPI.callgetAllMoneyByuserId(money);
+  //   });
+  // }
   @override
-  void initState() {
-    Money money = Money(
-      userId: widget.user!.userId,
-    );
-    getAllMoneyByuserId(money);
-    super.initState();
-  }
+  // void initState() {
+  //   Money money = Money(
+  //     // userId: widget.user!.userId,
+  //   );
+  //   getAllMoneyByuserId(money);
+  //   super.initState();
+  // }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

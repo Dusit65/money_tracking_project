@@ -2,12 +2,12 @@
 
 class Money {
   String? message;
-  int? moneyId;
+  String? moneyId;
   String? moneyDetail;
   String? moneyDate;
   String? moneyInOut;
   String? moneyType;
-  int? userId;
+  String? userId;
 
   Money(
       {this.message,

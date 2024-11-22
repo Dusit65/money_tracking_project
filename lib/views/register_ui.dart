@@ -1,10 +1,13 @@
-// ignore_for_file: prefer_const_constructors, sort_child_properties_last, unused_element, no_leading_underscores_for_local_identifiers
+// ignore_for_file: prefer_const_constructors, sort_child_properties_last, unused_element, no_leading_underscores_for_local_identifiers, prefer_interpolation_to_compose_strings, prefer_is_empty
 
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:money_tracking_project/models/user.dart';
+import 'package:money_tracking_project/services/call_api.dart';
+import 'package:money_tracking_project/views/login_ui.dart';
 
 class RegisterUI extends StatefulWidget {
   const RegisterUI({super.key});
@@ -64,9 +67,74 @@ class _RegisterUIState extends State<RegisterUI> {
   }
 
 //-----------------Camera/Gallery-----------------------------
+//Method showWaringDialog
+  showWaringDialog(context, msg) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Align(
+          alignment: Alignment.center,
+          child: Text(
+            'คำเตือน',
+          ),
+        ),
+        content: Text(
+          msg,
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'ตกลง',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+//Method showCompleteDialog
+  Future showCompleteDialog(context, msg) {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Align(
+          alignment: Alignment.center,
+          child: Text(
+            'ผลการทำงาน',
+          ),
+        ),
+        content: Text(
+          msg,
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'ตกลง',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
 //++++++++++++++++Calendar+++++++++++++++++++++++++++++++
-//Method open calendar start trip
+//Method open birthdate calendar
   Future<void> _openBirthdayCalendar() async {
     final DateTime? _picker = await showDatePicker(
       context: context,
@@ -79,7 +147,6 @@ class _RegisterUIState extends State<RegisterUI> {
       setState(() {
         userBirthDateCtrl.text = convertToThaiDate(_picker);
         _BirthDateSelected = _picker.toString().substring(0, 10);
-        userBirthDateCtrl.text = _picker.toString().substring(0, 10);
       });
     }
   }
@@ -202,7 +269,7 @@ class _RegisterUIState extends State<RegisterUI> {
                             ),
                           ),
                         ),
-                        //select profile image
+//select profile image
                         Padding(
                           padding: EdgeInsets.only(
                             top: MediaQuery.of(context).size.height * 0.015,
@@ -285,7 +352,7 @@ class _RegisterUIState extends State<RegisterUI> {
                         SizedBox(
                           height: MediaQuery.of(context).size.height * 0.03,
                         ),
-                        //Textfield Fullname
+//Textfield Fullname
                         Padding(
                           padding: EdgeInsets.only(
                             left: MediaQuery.of(context).size.width * 0.1,
@@ -318,12 +385,12 @@ class _RegisterUIState extends State<RegisterUI> {
                             ),
                           ),
                         ),
-                        //TextField Birthdate
+//TextField Birthdate
                         Padding(
                           padding: EdgeInsets.only(
                             left: MediaQuery.of(context).size.width * 0.1,
                             right: MediaQuery.of(context).size.width * 0.1,
-                            top: MediaQuery.of(context).size.height * 0.02,
+                            top: MediaQuery.of(context).size.height * 0.015,
                           ),
                           child: Row(
                             children: [
@@ -345,11 +412,13 @@ class _RegisterUIState extends State<RegisterUI> {
                                       borderSide: BorderSide(
                                         color: Color(0xFF3E7C78),
                                       ),
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderSide: BorderSide(
                                         color: Color(0xFF3E7C78),
                                       ),
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
                                     suffixIcon: IconButton(
                                       onPressed: () {
@@ -359,11 +428,11 @@ class _RegisterUIState extends State<RegisterUI> {
                                           AssetImage(
                                             'assets/icons/calendar.png',
                                           ),
+                                          color: Color(0xFF3E7C78),
                                           size: MediaQuery.of(context)
                                                   .size
                                                   .height *
-                                              0.029
-                                              ),
+                                              0.029),
                                     ),
                                   ),
                                 ),
@@ -371,7 +440,7 @@ class _RegisterUIState extends State<RegisterUI> {
                             ],
                           ),
                         ),
-                        //Textfield username
+//Textfield username
                         Padding(
                           padding: EdgeInsets.only(
                             left: MediaQuery.of(context).size.width * 0.1,
@@ -404,7 +473,7 @@ class _RegisterUIState extends State<RegisterUI> {
                             ),
                           ),
                         ),
-                        //Textfield password
+//Textfield password
                         Padding(
                           padding: EdgeInsets.only(
                             left: MediaQuery.of(context).size.width * 0.1,
@@ -450,8 +519,7 @@ class _RegisterUIState extends State<RegisterUI> {
                             ),
                           ),
                         ),
-
-                        //Login button
+//Register button
                         Padding(
                           padding: EdgeInsets.only(
                             left: MediaQuery.of(context).size.width * 0.1,
@@ -461,33 +529,44 @@ class _RegisterUIState extends State<RegisterUI> {
                           ),
                           child: ElevatedButton(
                             onPressed: () {
-                              // //Validate
-                              // if (usernameCtrl.text.trim().length == 0) {
-                              //   showWaringDialog(context, 'ป้อนชื่อผู้ใช้ด้วย');
-                              // } else if (passwordCtrl.text.trim().length == 0) {
-                              //   showWaringDialog(context, 'ป้อนรหัสผ่านด้วย');
-                              // } else {
-                              //   //validate username and password from DB through API
-                              //   //Create a variable to store data to be sent with the API
-                              //   User user = User(
-                              //     username: usernameCtrl.text.trim(),
-                              //     password: passwordCtrl.text.trim(),
-                              //   );
-                              //   //call API
-                              //   CallAPI.callcheckUserPasswordAPI(user).then((value) {
-                              //     if (value.message == '1') {
-                              //       Navigator.pushReplacement(
-                              //         context,
-                              //         MaterialPageRoute(
-                              //           builder: (context) => HomeUI(user: value,),
-                              //         ),
-                              //       );
-                              //     } else {
-                              //       showWaringDialog(
-                              //           context, "ชื่อผู้ใช้รหัสผ่านไม่ถูกต้อง");
-                              //     }
-                              //   });
-                              // }
+                              //validate ว่ามีข้อมูลครบหรือไม่
+                              if (_imageSelected == null) {
+                                showWaringDialog(context,
+                                    'กรุณาถ่ายรูป/อัปโหลดรูปโปรไฟล์ด้วย');
+                              } else if (userFullNameCtrl.text.trim().length ==
+                                  0) {
+                                showWaringDialog(context, 'กรุณาป้อนชื่อ-สกุล');
+                              } else if (_BirthDateSelected == '' ||
+                                  _BirthDateSelected == null) {
+                                showWaringDialog(context, 'กรุณาเลือกวันเกิด');
+                              } else if (userNameCtrl.text.trim().length == 0) {
+                                showWaringDialog(
+                                    context, 'กรุณาป้อนชื่อผู้ใช้');
+                              } else if (userPasswordCtrl.text.trim().length ==
+                                  0) {
+                                showWaringDialog(context, 'กรุณาป้อนรหัสผ่าน');
+                              } else {
+                                //Packing data for send to API Process
+                                User user = User(
+                                  userFullName: userFullNameCtrl.text,
+                                  userBirthDate: userBirthDateCtrl.text,
+                                  userName: userNameCtrl.text,
+                                  userPassword: userPasswordCtrl.text,
+                                  userImage: _image64Selected,
+                                );
+                                //Call API
+                                CallAPI.callregisterAPI(user).then((value) {
+                                  if (value.message == '1') {
+                                    showCompleteDialog(
+                                            context, 'สมัครสมาชิกสําเร็จOvO')
+                                        .then(
+                                            (value) => Navigator.pop(context));
+                                  } else {
+                                    showCompleteDialog(
+                                        context, 'มีบางอย่างผิดพลาด');
+                                  }
+                                });
+                              }
                             },
                             child: Text(
                               'เข้าใช้งาน',

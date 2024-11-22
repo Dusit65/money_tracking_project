@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last, use_build_context_synchronously, prefer_is_empty
 
 import 'package:flutter/material.dart';
 import 'package:money_tracking_project/models/user.dart';
@@ -208,13 +208,6 @@ class _LoginUIState extends State<LoginUI> {
                           ),
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HomeUI(),
-                          ),
-                        );
-                              
                               //Validate
                               if (userNameCtrl.text.trim().length == 0) {
                                 showWaringDialog(context, 'ป้อนชื่อผู้ใช้ด้วย');
