@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, sort_child_properties_last, unused_element, no_leading_underscores_for_local_identifiers, prefer_interpolation_to_compose_strings, prefer_is_empty
+// ignore_for_file: prefer_const_constructors, sort_child_properties_last, unused_element, no_leading_underscores_for_local_identifiers, prefer_interpolation_to_compose_strings, prefer_is_empty, non_constant_identifier_names
 
 import 'dart:convert';
 import 'dart:io';
@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:money_tracking_project/models/user.dart';
 import 'package:money_tracking_project/services/call_api.dart';
-import 'package:money_tracking_project/views/login_ui.dart';
+
 
 class RegisterUI extends StatefulWidget {
   const RegisterUI({super.key});

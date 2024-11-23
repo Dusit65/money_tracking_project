@@ -1,8 +1,11 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings, unused_element, sort_child_properties_last
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings, unused_element, sort_child_properties_last, prefer_is_empty, use_build_context_synchronously, must_be_immutable, non_constant_identifier_names, no_leading_underscores_for_local_identifiers, avoid_single_cascade_in_expression_statements
 
 import 'package:flutter/material.dart';
 import 'package:money_tracking_project/models/money.dart';
 import 'package:money_tracking_project/models/user.dart';
+import 'package:money_tracking_project/services/call_api.dart';
+import 'package:money_tracking_project/utils/env.dart';
+import 'package:money_tracking_project/views/subviews/main_view.dart';
 
 class IncomeView extends StatefulWidget {
   User? user;
@@ -15,12 +18,12 @@ class IncomeView extends StatefulWidget {
 }
 
 class _IncomeViewState extends State<IncomeView> {
-  //TextField Controller
+//TextField Controller
   TextEditingController moneyDetailCtrl = TextEditingController(text: '');
   TextEditingController moneyInOutCtrl = TextEditingController(text: '');
   TextEditingController moneyDateCtrl = TextEditingController(text: '');
 
-  //++++++++++++++++Calendar+++++++++++++++++++++++++++++++
+//++++++++++++++++Calendar+++++++++++++++++++++++++++++++
 //Method open calendar
 //variable date
   String? _DateSelected;
@@ -90,6 +93,74 @@ class _IncomeViewState extends State<IncomeView> {
   }
 
 //++++++++++++++++Calendar+++++++++++++++++++++++++++++++
+//-----------------Method showDialog-----------------------------
+//Method showWaringDialog
+  showWaringDialog(context, msg) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Align(
+          alignment: Alignment.center,
+          child: Text(
+            'คำเตือน',
+          ),
+        ),
+        content: Text(
+          msg,
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'ตกลง',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+//Method showCompleteDialog
+  Future showCompleteDialog(context, msg) {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Align(
+          alignment: Alignment.center,
+          child: Text(
+            'ผลการทำงาน',
+          ),
+        ),
+        content: Text(
+          msg,
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'ตกลง',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+//-----------------Method showDialog-----------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -123,11 +194,11 @@ class _IncomeViewState extends State<IncomeView> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(
-                        left: 0,
-                        right: 120,
+                        left: 10,
+                        right: 100,
                       ),
                       child: Text(
-                        'Firstname Lastname',
+                        '${widget.user!.userFullName}',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,
@@ -137,9 +208,9 @@ class _IncomeViewState extends State<IncomeView> {
                     //Profile
                     ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: Image.asset(
-                        // '${Env.hostName}/moneytrackingAPI/picupload/user/${widget.user!.userImage}',
-                        'assets/images/paul.png',
+                      child: Image.network(
+                        '${Env.hostName}/moneytrackingAPI/picupload/user/${widget.user!.userImage}',
+                        // 'assets/images/paul.png',
                         width: MediaQuery.of(context).size.width * 0.15,
                         height: MediaQuery.of(context).size.width * 0.15,
                         fit: BoxFit.cover,
@@ -446,33 +517,42 @@ class _IncomeViewState extends State<IncomeView> {
                     ),
                     child: ElevatedButton(
                       onPressed: () {
-                        // //Validate
-                        // if (usernameCtrl.text.trim().length == 0) {
-                        //   showWaringDialog(context, 'ป้อนชื่อผู้ใช้ด้วย');
-                        // } else if (passwordCtrl.text.trim().length == 0) {
-                        //   showWaringDialog(context, 'ป้อนรหัสผ่านด้วย');
-                        // } else {
-                        //   //validate username and password from DB through API
-                        //   //Create a variable to store data to be sent with the API
-                        //   User user = User(
-                        //     username: usernameCtrl.text.trim(),
-                        //     password: passwordCtrl.text.trim(),
-                        //   );
-                        //   //call API
-                        //   CallAPI.callcheckUserPasswordAPI(user).then((value) {
-                        //     if (value.message == '1') {
-                        //       Navigator.pushReplacement(
-                        //         context,
-                        //         MaterialPageRoute(
-                        //           builder: (context) => HomeUI(user: value,),
-                        //         ),
-                        //       );
-                        //     } else {
-                        //       showWaringDialog(
-                        //           context, "ชื่อผู้ใช้รหัสผ่านไม่ถูกต้อง");
-                        //     }
-                        //   });
-                        // }
+                        //Validate
+                        if (moneyDetailCtrl.text.trim().length == 0) {
+                          showWaringDialog(context, 'ป้อนรายการเงินเข้าด้วย');
+                        } else if (moneyInOutCtrl.text.trim().length == 0) {
+                          showWaringDialog(context, 'ป้อนจำนวนเงินเข้าด้วย');
+                        } else if (_DateSelected == '' ||
+                            _DateSelected == null) {
+                          showWaringDialog(
+                              context, 'เลือกวัน เดือน ปีที่เงินเข้าด้วย');
+                        } else {
+                          //Packing Data for send to API
+                          Money money = Money(
+                            moneyDetail: moneyDetailCtrl.text,
+                            moneyInOut: moneyInOutCtrl.text,
+                            moneyDate: _DateSelected,
+                            moneyType: '1',
+                            userId: widget.user!.userId,
+                          );
+                          //call API
+//ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR vv
+                          CallAPI.callinsertInOutComeAPI(money).then((value) {
+                            if (value.message == '1') {
+                              showCompleteDialog(
+                                      context, 'บันทึกเงินเข้าสําเร็จOvO')
+                                  .then((value) => Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => MainView(user: value,),
+                                      ),
+                                    ));
+                            } else {
+                              showCompleteDialog(
+                                  context, 'บันทึกเงินเข้าไม่สําเร็จO^O');
+                            }
+                          });
+                        }
                       },
                       child: Text(
                         'บันทึกเงินเข้า',

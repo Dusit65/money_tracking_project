@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, unused_import, use_full_hex_values_for_flutter_colors, must_be_immutable, annotate_overrides
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, unused_import, use_full_hex_values_for_flutter_colors, must_be_immutable, annotate_overrides, avoid_print
 import 'dart:io';
 import 'package:http/http.dart';
 import 'package:flutter/material.dart';
@@ -31,15 +31,11 @@ class _MainViewState extends State<MainView> {
 
   @override
   void initState() {
-    super.initState();
-
     // ตรวจสอบว่ามีข้อมูล User หรือไม่ก่อนเรียก API
-    if (widget.user != null && widget.user!.userId != null) {
-      Money money = Money(userId: widget.user!.userId);
-      getAllMoneyByuserId(money);
-    } else {
-      print("Error: User is null or userId is missing.");
-    }
+//ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR vv
+    Money money = Money(userId: widget.user!.userId);
+    getAllMoneyByuserId(money);
+    super.initState();
   }
 
   Widget build(BuildContext context) {
@@ -290,12 +286,17 @@ class _MainViewState extends State<MainView> {
                                   subtitle: Text(
                                     'วันที่บันทึก : ${snapshot.data![index].moneyDate}',
                                   ),
-                                  trailing: Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: Color(0xFF3E7C78),
-                                  ),
+                                  trailing:
+                                      Text(snapshot.data![index].moneyInOut!,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.normal,
+                                            color: moneyItem.moneyType == "1"
+                                                ? Colors.green
+                                                : Colors.red,
+                                          )),
                                 ),
-                                Divider(),
+                                // Divider(),
                               ]);
                             });
                       }

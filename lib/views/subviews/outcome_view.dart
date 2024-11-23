@@ -1,9 +1,10 @@
-// ignore_for_file: prefer_const_constructors, prefer_interpolation_to_compose_strings, sort_child_properties_last, prefer_const_literals_to_create_immutables, prefer_is_empty, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, prefer_interpolation_to_compose_strings, sort_child_properties_last, prefer_const_literals_to_create_immutables, prefer_is_empty, use_build_context_synchronously, must_be_immutable, unused_import, non_constant_identifier_names, no_leading_underscores_for_local_identifiers
 
 import 'package:flutter/material.dart';
 import 'package:money_tracking_project/models/money.dart';
 import 'package:money_tracking_project/models/user.dart';
 import 'package:money_tracking_project/services/call_api.dart';
+import 'package:money_tracking_project/utils/env.dart';
 import 'package:money_tracking_project/views/home_ui.dart';
 import 'package:money_tracking_project/views/subviews/main_view.dart';
 
@@ -22,7 +23,7 @@ class _OutcomeViewState extends State<OutcomeView> {
   TextEditingController moneyInOutCtrl = TextEditingController(text: '');
   TextEditingController moneyDateCtrl = TextEditingController(text: '');
 
-  //++++++++++++++++Calendar+++++++++++++++++++++++++++++++
+//++++++++++++++++Calendar+++++++++++++++++++++++++++++++
 //Method open calendar
 //variable date
   String? _DateSelected;
@@ -38,7 +39,7 @@ class _OutcomeViewState extends State<OutcomeView> {
       setState(() {
         moneyDateCtrl.text = convertToThaiDate(_picker);
         _DateSelected = _picker.toString().substring(0, 10);
-        moneyDateCtrl.text = _picker.toString().substring(0, 10);
+        // moneyDateCtrl.text = _picker.toString().substring(0, 10);
       });
     }
   }
@@ -87,10 +88,8 @@ class _OutcomeViewState extends State<OutcomeView> {
       default:
         month = 'ธันวาคม';
     }
-
-    return day + ' ' + month + ' พ.ศ. ' + year;
+    return day + ' ' + month + ' ' + year;
   }
-
 //++++++++++++++++Calendar+++++++++++++++++++++++++++++++
 
 //-----------------Method showDialog-----------------------------
@@ -204,11 +203,11 @@ class _OutcomeViewState extends State<OutcomeView> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(
-                        left: 0,
-                        right: 120,
+                        left: 10,
+                        right: 100,
                       ),
                       child: Text(
-                        'Firstname Lastname',
+                        '${widget.user!.userFullName}',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,
@@ -218,9 +217,9 @@ class _OutcomeViewState extends State<OutcomeView> {
                     //Profile
                     ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: Image.asset(
-                        // '${Env.hostName}/moneytrackingAPI/picupload/user/${widget.user!.userImage}',
-                        'assets/images/paul.png',
+                      child: Image.network(
+                        '${Env.hostName}/moneytrackingAPI/picupload/user/${widget.user!.userImage}',
+                        // 'assets/images/paul.png',
                         width: MediaQuery.of(context).size.width * 0.15,
                         height: MediaQuery.of(context).size.width * 0.15,
                         fit: BoxFit.cover,
@@ -537,25 +536,30 @@ class _OutcomeViewState extends State<OutcomeView> {
                           showWaringDialog(
                               context, 'เลือกวัน เดือน ปีที่เงินออกด้วย');
                         } else {
-                          //validate
+                          //Packing Data for send to API
                           Money money = Money(
                             moneyDetail: moneyDetailCtrl.text,
                             moneyInOut: moneyInOutCtrl.text,
                             moneyDate: _DateSelected,
+                            moneyType: '2',
+                            userId: widget.user!.userId,
+                            
                           );
                           //call API
+//ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR vv                      
                           CallAPI.callinsertInOutComeAPI(money).then((value) {
                             if (value.message == '1') {
                               showCompleteDialog(
                                       context, 'บันทึกเงินออกสําเร็จOvO')
-                                  .then((value) =>Navigator.pushReplacement(
+                                  .then((value) => Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => HomeUI(user: value,),
+                                        builder: (context) => MainView(user: value,),
                                       ),
                                     ));
                             } else {
-                              showCompleteDialog(context, 'บันทึกเงินออกไม่สําเร็จO^O');
+                              showCompleteDialog(
+                                  context, 'บันทึกเงินออกไม่สําเร็จO^O');
                             }
                           });
                         }

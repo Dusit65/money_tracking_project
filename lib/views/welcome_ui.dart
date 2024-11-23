@@ -57,7 +57,7 @@ class _WelcomeUIState extends State<WelcomeUI> {
               //save edit button
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => LoginUI(),
