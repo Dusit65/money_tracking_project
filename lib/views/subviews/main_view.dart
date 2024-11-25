@@ -1,8 +1,7 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, unused_import, use_full_hex_values_for_flutter_colors, must_be_immutable, annotate_overrides, avoid_print
-import 'dart:io';
-import 'package:http/http.dart';
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, must_be_immutable
+
 import 'package:flutter/material.dart';
-import 'package:intl/message_format.dart';
+import 'package:intl/intl.dart';
 import 'package:money_tracking_project/models/money.dart';
 import 'package:money_tracking_project/models/user.dart';
 import 'package:money_tracking_project/services/call_api.dart';
@@ -10,34 +9,39 @@ import 'package:money_tracking_project/utils/env.dart';
 
 class MainView extends StatefulWidget {
   User? user;
-  Money? money;
-
-  MainView({super.key, this.user, this.money});
+  MainView({
+    super.key, required this.user
+  });
 
   @override
   State<MainView> createState() => _MainViewState();
 }
 
 class _MainViewState extends State<MainView> {
-  //ตัวแปรเก็บข้อมูลการกินที่ได้ขากการเรียกใช้API
-  Future<List<Money>>? moneyData;
+  List<Money>? moneyData;
+  double totalBalance = 0.0;
 
-  //สร้างฟังก์ชันเรียกใช้API
-  getAllMoneyByuserId(Money money) {
+  // Fetch data from the API
+  Future<void> callGetAllStatementByUserId(Money money) async {
+    final data = await CallAPI.callgetAllMoneyByuserId(money);
     setState(() {
-      moneyData = CallAPI.callgetAllMoneyByuserId(money);
+      moneyData = data;
+      final totalIncome = data.where((item) => item.moneyType == '1').fold(
+          0.0, (sum, item) => sum + (double.tryParse(item.moneyInOut!) ?? 0.0));
+      final totalExpense = data.where((item) => item.moneyType == '2').fold(
+          0.0, (sum, item) => sum + (double.tryParse(item.moneyInOut!) ?? 0.0));
+      totalBalance = totalIncome - totalExpense;
     });
   }
 
   @override
   void initState() {
-    // ตรวจสอบว่ามีข้อมูล User หรือไม่ก่อนเรียก API
-//ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR vv
-    Money money = Money(userId: widget.user!.userId);
-    getAllMoneyByuserId(money);
     super.initState();
+    Money money = Money(userId: widget.user!.userId);
+    callGetAllStatementByUserId(money);
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -131,16 +135,22 @@ class _MainViewState extends State<MainView> {
               ),
               //Total Money-------------------------------------
               Padding(
-                padding: const EdgeInsets.only(
-                  top: 0,
-                ),
-                child: Text(
-                  '2,500.00',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 25,
-                  ),
-                ),
+                padding: EdgeInsets.only(top: 0),
+                child: moneyData == null || totalBalance == 0
+                    ? Text(
+                        '0.00',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 25,
+                        ),
+                      )
+                    : Text(
+                        NumberFormat('#,###.00').format(totalBalance),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 25,
+                        ),
+                      ),
               ),
 //Text in/outcome
               Padding(
@@ -206,37 +216,80 @@ class _MainViewState extends State<MainView> {
               //num in/outcome
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 6),
-                child:
-                    Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                  //income------------------------------------
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 0,
-                      left: 55,
-                    ),
-                    child: Text(
-                      '5,700.00',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    moneyData == null
+                        ? CircularProgressIndicator()
+                        : moneyData == null ||
+                                moneyData!
+                                        .where((item) => item.moneyType == '1')
+                                        .fold(
+                                            0.0,
+                                            (sum, item) =>
+                                                sum +
+                                                double.parse(
+                                                    item.moneyInOut!)) ==
+                                    0
+                            ? Text(
+                                '0.00',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              )
+                            : Text(
+                                NumberFormat('#,###.00').format(
+                                  moneyData!
+                                      .where((item) => item.moneyType == '1')
+                                      .fold(
+                                          0.0,
+                                          (sum, item) =>
+                                              sum +
+                                              double.parse(item.moneyInOut!)),
+                                ),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: 120,
                       ),
                     ),
-                  ),
-                  //outcome------------------------------------
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 0,
-                      left: 140,
-                    ),
-                    child: Text(
-                      '2,200.00',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                ]),
+                    moneyData == null ||
+                            moneyData!
+                                    .where((item) => item.moneyType == '2')
+                                    .fold(
+                                        0.0,
+                                        (sum, item) =>
+                                            sum +
+                                            double.parse(item.moneyInOut!)) ==
+                                0
+                        ? Text(
+                            '0.00',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          )
+                        : Text(
+                            NumberFormat('#,###.00').format(
+                              moneyData!
+                                  .where((item) => item.moneyType == '2')
+                                  .fold(
+                                      0.0,
+                                      (sum, item) =>
+                                          sum + double.parse(item.moneyInOut!)),
+                            ),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -255,57 +308,53 @@ class _MainViewState extends State<MainView> {
               ),
 //Income/Outcome List=============================================================================
               Expanded(
-                child: FutureBuilder<List<Money>>(
-                  future: moneyData,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      if (snapshot.data![0].message == "0") {
-                        return Text("ยังไม่ได้บันทึกรายการ");
-                      } else {
-                        return ListView.builder(
-                            itemCount: snapshot.data!.length,
-                            itemBuilder: (context, index) {
-                              var moneyItem = snapshot.data![index];
-                              return Column(children: [
-                                ListTile(
-                                  onTap: () {},
-                                  tileColor: moneyItem.moneyType == "1"
-                                      ? Colors.green[50]
-                                      : Colors.red[50],
-                                  leading: Icon(
-                                    moneyItem.moneyType == "1"
-                                        ? Icons.arrow_downward
-                                        : Icons.arrow_upward,
-                                    color: moneyItem.moneyType == "1"
-                                        ? Colors.green
-                                        : Colors.red,
-                                  ),
-                                  title: Text(
-                                    snapshot.data![index].moneyDetail!,
-                                  ),
-                                  subtitle: Text(
-                                    'วันที่บันทึก : ${snapshot.data![index].moneyDate}',
-                                  ),
-                                  trailing:
-                                      Text(snapshot.data![index].moneyInOut!,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.normal,
-                                            color: moneyItem.moneyType == "1"
-                                                ? Colors.green
-                                                : Colors.red,
-                                          )),
-                                ),
-                                // Divider(),
-                              ]);
-                            });
-                      }
+              child: FutureBuilder<List<Money>>(
+                future: moneyData,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    if (snapshot.data![0].message == "0") {
+                      return Text("ยังไม่ได้บันทึกการเดินทาง");
                     } else {
-                      return CircularProgressIndicator();
+                      return ListView.builder(
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            var moneyItem = snapshot.data![index];
+                            return Column(
+                              children: [
+                              ListTile(
+                                onTap: () {},
+                                tileColor: index % 2 == 0
+                                    ? Colors.blue[50]
+                                    : Colors.orange[50],
+                                leading: Icon(
+                                  moneyItem.moneyType == "1"
+                                      ? Icons.arrow_downward
+                                      : Icons.arrow_upward,
+                                  color: moneyItem.moneyType == "1"
+                                      ? Colors.green
+                                      : Colors.red,
+                                ),
+                                title: Text(
+                                  snapshot.data![index].moneyDetail!,
+                                ),
+                                subtitle: Text(
+                                      snapshot.data![index].moneyDate!,
+                                    ),
+                                    trailing: Text(
+                                      snapshot.data![index].moneyInOut!,
+                                    )
+                                
+                              ),
+                              Divider(),
+                            ]);
+                          });
                     }
-                  },
-                ),
+                  } else {
+                    return CircularProgressIndicator();
+                  }
+                },
               ),
+            ),
             ],
           ),
         ],

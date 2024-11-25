@@ -11,8 +11,8 @@ import 'package:money_tracking_project/views/subviews/outcome_view.dart';
 
 class HomeUI extends StatefulWidget {
   User? user;
-  // Money? money;
-    HomeUI({super.key, this.user});
+  Money? money;
+    HomeUI({super.key, this.user, this.money});
 
   @override
   State<HomeUI> createState() => _HomeUIState();
