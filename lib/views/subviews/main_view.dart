@@ -9,9 +9,8 @@ import 'package:money_tracking_project/utils/env.dart';
 
 class MainView extends StatefulWidget {
   User? user;
-  MainView({
-    super.key, required this.user
-  });
+  Money? money;
+  MainView({super.key, required this.user});
 
   @override
   State<MainView> createState() => _MainViewState();
@@ -213,7 +212,7 @@ class _MainViewState extends State<MainView> {
                   ),
                 ]),
               ),
-              //num in/outcome
+//num in/outcome
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 6),
                 child: Row(
@@ -307,7 +306,7 @@ class _MainViewState extends State<MainView> {
                 ),
               ),
 //Income/Outcome List=============================================================================
-              Expanded(
+              /* Expanded(
               child: FutureBuilder<List<Money>>(
                 future: moneyData,
                 builder: (context, snapshot) {
@@ -355,6 +354,74 @@ class _MainViewState extends State<MainView> {
                 },
               ),
             ),
+            */
+              Expanded(
+                  child: moneyData == null || moneyData!.isEmpty
+                      ? Column(
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.05,
+                            ),
+                            Text(
+                              'ไม่มีรายการเงินเข้า/เงินออก',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Stack(
+                          children: [
+                            Positioned.fill(
+                              // top: MediaQuery.of(context).size.height * 0.025,
+                              child: ListView.builder(
+                                itemCount: moneyData!.length,
+                                itemBuilder: (context, index) {
+                                  final transaction = moneyData![index];
+                                  return ListTile(
+                                    tileColor: transaction.moneyType == '1'
+                                        ? Colors.green[50] :  Colors.red[50],
+                                    leading: transaction.moneyType == '1'
+                                        ? Icon(
+                                            Icons
+                                                .arrow_downward, // ใช้ไอคอนแทนรูปภาพ "income"
+                                            color: Colors.green,
+                                            size: 24.0, // ขนาดของไอคอน
+                                          )
+                                        : Icon(
+                                            Icons
+                                                .arrow_upward, // ใช้ไอคอนแทนรูปภาพ "outcome"
+                                            color: Colors.red,
+                                            size: 24.0, // ขนาดของไอคอน
+                                          ),
+                                    title: Text(
+                                        transaction.moneyDetail ?? 'No Detail'),
+                                    subtitle: Text(transaction.moneyDate ??
+                                        'Unknown Date'),
+                                    trailing: Text(
+                                      transaction.moneyInOut == null ||
+                                              double.parse(transaction
+                                                      .moneyInOut!) ==
+                                                  0
+                                          ? '0.00'
+                                          : NumberFormat('#,###.00').format(
+                                              double.parse(
+                                                  transaction.moneyInOut!)),
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: transaction.moneyType == '1'
+                                            ? Colors.green
+                                            : Colors.red,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ))
             ],
           ),
         ],

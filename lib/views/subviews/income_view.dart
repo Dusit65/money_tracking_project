@@ -1,10 +1,12 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_interpolation_to_compose_strings, unused_element, sort_child_properties_last, prefer_is_empty, use_build_context_synchronously, must_be_immutable, non_constant_identifier_names, no_leading_underscores_for_local_identifiers, avoid_single_cascade_in_expression_statements
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:money_tracking_project/models/money.dart';
 import 'package:money_tracking_project/models/user.dart';
 import 'package:money_tracking_project/services/call_api.dart';
 import 'package:money_tracking_project/utils/env.dart';
+import 'package:money_tracking_project/views/home_ui.dart';
 import 'package:money_tracking_project/views/subviews/main_view.dart';
 
 class IncomeView extends StatefulWidget {
@@ -18,6 +20,8 @@ class IncomeView extends StatefulWidget {
 }
 
 class _IncomeViewState extends State<IncomeView> {
+  List<Money>? moneyData;
+  double totalBalance = 0.0;
 //TextField Controller
   TextEditingController moneyDetailCtrl = TextEditingController(text: '');
   TextEditingController moneyInOutCtrl = TextEditingController(text: '');
@@ -160,9 +164,25 @@ class _IncomeViewState extends State<IncomeView> {
     );
   }
 
-//-----------------Method showDialog-----------------------------
+//-----------------End of Method showDialog----------------------
+Future<void> callGetAllStatementByUserId(Money money) async {
+    final data = await CallAPI.callgetAllMoneyByuserId(money);
+    setState(() {
+      moneyData = data;
+      final totalIncome = data.where((item) => item.moneyType == '1').fold(
+          0.0, (sum, item) => sum + (double.tryParse(item.moneyInOut!) ?? 0.0));
+      final totalExpense = data.where((item) => item.moneyType == '2').fold(
+          0.0, (sum, item) => sum + (double.tryParse(item.moneyInOut!) ?? 0.0));
+      totalBalance = totalIncome - totalExpense;
+    });
+  }
 
   @override
+  void initState() {
+    super.initState();
+    Money money = Money(userId: widget.user!.userId);
+    callGetAllStatementByUserId(money);
+  }
   Widget build(BuildContext context) {
     return Scaffold(
       body: GestureDetector(
@@ -224,156 +244,199 @@ class _IncomeViewState extends State<IncomeView> {
               ),
 
               //Total Money Box================================================================================
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 150,
+              left: 25,
+              right: 25,
+            ),
+            child: Container(
+              width: MediaQuery.of(context).size.width * 1,
+              height: MediaQuery.of(context).size.height * 0.25,
+              decoration: BoxDecoration(
+                  color: //const Color.fromARGB(255, 47, 116, 121), // Main Color
+                      Color(0xFF107C78),
+                  borderRadius: BorderRadius.circular(
+                    27,
+                  )),
+            ),
+          ),
+//Total Money Detail
+          Column(
+            children: [
               Padding(
                 padding: const EdgeInsets.only(
-                  top: 150,
-                  left: 25,
-                  right: 25,
+                  top: 165,
                 ),
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 1,
-                  height: MediaQuery.of(context).size.height * 0.25,
-                  decoration: BoxDecoration(
-                      color: //const Color.fromARGB(255, 47, 116, 121), // Main Color
-                          Color(0xFF107C78),
-                      borderRadius: BorderRadius.circular(
-                        27,
-                      )),
+                child: Text(
+                  'ยอดเงินคงเหลือ',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
                 ),
               ),
-              //Total Money Detail
-              Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 165,
-                    ),
-                    child: Text(
-                      'ยอดเงินคงเหลือ',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
+              //Total Money-------------------------------------
+              Padding(
+                padding: EdgeInsets.only(top: 0),
+                child: moneyData == null || totalBalance == 0
+                    ? Text(
+                        '0.00',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 25,
+                        ),
+                      )
+                    : Text(
+                        NumberFormat('#,###.00').format(totalBalance),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 25,
+                        ),
                       ),
-                    ),
-                  ),
-                  //Total Money-------------------------------------
+              ),
+//Text in/outcome
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 50,
+                  left: 6,
+                  right: 0,
+                ),
+                child:
+                    Row(mainAxisAlignment: MainAxisAlignment.start, children: [
                   Padding(
                     padding: const EdgeInsets.only(
                       top: 0,
+                      left: 50,
+                    ),
+                    child: ImageIcon(
+                        AssetImage(
+                          'assets/icons/income.png',
+                        ),
+                        color: Colors.white,
+                        size: MediaQuery.of(context).size.height * 0.029),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: 0,
+                      left: 10,
                     ),
                     child: Text(
-                      '2,500.00',
+                      'ยอดเงินเข้ารวม',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 25,
+                        fontSize: 12,
                       ),
                     ),
                   ),
-                  //Text in/outcome
                   Padding(
                     padding: const EdgeInsets.only(
-                      top: 50,
-                      left: 6,
-                      right: 0,
+                      top: 0,
+                      left: 65,
                     ),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: 0,
-                              left: 50,
-                            ),
-                            child: ImageIcon(
-                                AssetImage(
-                                  'assets/icons/income.png',
-                                ),
-                                color: Colors.white,
-                                size:
-                                    MediaQuery.of(context).size.height * 0.029),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: 0,
-                              left: 10,
-                            ),
-                            child: Text(
-                              'ยอดเงินเข้ารวม',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: 0,
-                              left: 65,
-                            ),
-                            child: Text(
-                              'ยอดเงินออกรวม',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: 0,
-                              left: 10,
-                            ),
-                            child: ImageIcon(
-                                AssetImage(
-                                  'assets/icons/outcome.png',
-                                ),
-                                color: Colors.white,
-                                size:
-                                    MediaQuery.of(context).size.height * 0.029),
-                          ),
-                        ]),
+                    child: Text(
+                      'ยอดเงินออกรวม',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
-                  //num in/outcome
                   Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 5, horizontal: 6),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          //income------------------------------------
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: 0,
-                              left: 55,
-                            ),
-                            child: Text(
-                              '5,700.00',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                          //outcome------------------------------------
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: 0,
-                              left: 140,
-                            ),
-                            child: Text(
-                              '2,200.00',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                        ]),
+                    padding: const EdgeInsets.only(
+                      top: 0,
+                      left: 10,
+                    ),
+                    child: ImageIcon(
+                        AssetImage(
+                          'assets/icons/outcome.png',
+                        ),
+                        color: Colors.white,
+                        size: MediaQuery.of(context).size.height * 0.029),
                   ),
-                ],
+                ]),
               ),
-              //===================================End of Total Money Box===============================================
-
+              //num in/outcome
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 6),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    moneyData == null
+                        ? CircularProgressIndicator()
+                        : moneyData == null ||
+                                moneyData!
+                                        .where((item) => item.moneyType == '1')
+                                        .fold(
+                                            0.0,
+                                            (sum, item) =>
+                                                sum +
+                                                double.parse(
+                                                    item.moneyInOut!)) ==
+                                    0
+                            ? Text(
+                                '0.00',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              )
+                            : Text(
+                                NumberFormat('#,###.00').format(
+                                  moneyData!
+                                      .where((item) => item.moneyType == '1')
+                                      .fold(
+                                          0.0,
+                                          (sum, item) =>
+                                              sum +
+                                              double.parse(item.moneyInOut!)),
+                                ),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: 120,
+                      ),
+                    ),
+                    moneyData == null ||
+                            moneyData!
+                                    .where((item) => item.moneyType == '2')
+                                    .fold(
+                                        0.0,
+                                        (sum, item) =>
+                                            sum +
+                                            double.parse(item.moneyInOut!)) ==
+                                0
+                        ? Text(
+                            '0.00',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          )
+                        : Text(
+                            NumberFormat('#,###.00').format(
+                              moneyData!
+                                  .where((item) => item.moneyType == '2')
+                                  .fold(
+                                      0.0,
+                                      (sum, item) =>
+                                          sum + double.parse(item.moneyInOut!)),
+                            ),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+//===================================End of Total Money Box===============================================
               //insert Income===============================================
               Column(
                 children: [
@@ -544,7 +607,7 @@ class _IncomeViewState extends State<IncomeView> {
                                   .then((value) => Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => MainView(user: value,),
+                                        builder: (context) =>  HomeUI(user: widget.user),
                                       ),
                                     ));
                             } else {
