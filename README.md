@@ -6,17 +6,17 @@ Created By : Dusit Pakdeekunakorn DTU-SAU
 
   
 ## Screen UI
-<image src="https://github.com/Dusit65/km_widget_ui/blob/main/Welcome.jpg" width="150px">
+<image src="https://github.com/Dusit65/money_tracking_project/blob/main/Welcome.jpg" width="150px">
   
-<image src="https://github.com/Dusit65/km_widget_ui/blob/main/Login.jpg" width="150px">
+<image src="https://github.com/Dusit65/money_tracking_project/blob/main/Login.jpg" width="150px">
   
-<image src="https://github.com/Dusit65/km_widget_ui/blob/main/Register.jpg" width="150px">
+<image src="https://github.com/Dusit65/money_tracking_project/blob/main/Register.jpg" width="150px">
   
-<image src="https://github.com/Dusit65/km_widget_ui/blob/main/MainPage.jpg" width="150px">
+<image src="https://github.com/Dusit65/money_tracking_project/blob/main/MainPage.jpg" width="150px">
 
-<image src="https://github.com/Dusit65/km_widget_ui/blob/main/inCome.jpg" width="150px">
+<image src="https://github.com/Dusit65/money_tracking_project/blob/main/inCome.jpg" width="150px">
 
-<image src="https://github.com/Dusit65/km_widget_ui/blob/main/outCome.jpg" width="150px">
+<image src="https://github.com/Dusit65/money_tracking_project/blob/main/outCome.jpg" width="150px">
 
 
   
